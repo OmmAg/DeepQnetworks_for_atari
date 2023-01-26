@@ -5,6 +5,7 @@ from collections import deque
 import itertools
 import numpy as np
 import random
+import time
 
 GAMMA = 0.99                #   Discount rate
 BATCH_SIZE = 32         #Number of transitions we are gonna sample from replay buffer
@@ -48,7 +49,8 @@ class Network(nn.Module):
 
         return action
 
-env = gym.make('CartPole-v0', render_mode="rgb_array")
+env = gym.make('CartPole-v0')
+
 
 replay_buffer = deque(maxlen=BUFFER_SIZE)
 rew_buffer = deque([0.0],maxlen=100)
@@ -67,8 +69,7 @@ optimizer = torch.optim.Adam(online_net.parameters(), lr=5e-4)
 obs = env.reset()
 for x in range(MIN_REPLAY_SIZE):
     action = env.action_space.sample()
-    print(len(env.step(action)))
-    new_obs, rew, done, x, y = env.step(action)
+    new_obs, rew, done, x = env.step(action)
     transition = (obs, action, rew, done, new_obs)
     replay_buffer.append(transition)
     obs = new_obs
@@ -88,7 +89,7 @@ for step in itertools.count():
     else:
         action = online_net.act(obs)
 
-    new_obs, rew, done, _, x= env.step(action)
+    new_obs, rew, done, _= env.step(action)
     transition = (obs, action, rew, done, new_obs)
     replay_buffer.append(transition)
     obs = new_obs
@@ -103,20 +104,17 @@ for step in itertools.count():
 
     if len(rew_buffer) >= 100:
         if np.mean(rew_buffer) >= 195:
+
             while True:
-                print(1)
                 action = online_net.act(obs)
 
-                print(2)
-                obs, _, done, _, _ = env.step(action)
-                print(3)
+                obs, _, done, _ = env.step(action)
                 env.render()
+                time.sleep(0.001)
 
-                print(4)
                 if done:
-                    print(5)
+
                     env.reset()
-                    print(6)
 
     #Start gradient loop
     transitions = random.sample(replay_buffer, BATCH_SIZE)
