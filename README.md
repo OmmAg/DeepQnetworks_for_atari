@@ -12,3 +12,9 @@ Run the newdqn.py python script to train the model to play the breakout game.
 The model should be trained for atleast 3 hours
 An automatic file will be generated with the name ./atari_model.pack with the saved model parameters
 Then run the observe.py file to see the model play the game
+
+# Results of training:
+Extract the log.zip file
+Run the command in the virtual environment terminal: 
+tensorboard --logdir ./logs 
+Click on the url to see the graphical results
